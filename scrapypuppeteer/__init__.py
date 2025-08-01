@@ -1,4 +1,5 @@
 from .actions import (
+    CaptchaSolver,
     Click,
     CustomJsAction,
     FillForm,
@@ -13,6 +14,7 @@ from .actions import (
 )
 from .request import CloseContextRequest, PuppeteerRequest
 from .response import (
+    PuppeteerCaptchaSolverResponse,
     PuppeteerHtmlResponse,
     PuppeteerJsonResponse,
     PuppeteerRecaptchaSolverResponse,

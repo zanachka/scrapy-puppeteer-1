@@ -9,6 +9,7 @@ from scrapy.utils.log import failure_to_exc_info
 from twisted.python.failure import Failure
 
 from scrapypuppeteer.actions import (
+    CaptchaSolver,
     Click,
     Compose,
     FillForm,
@@ -23,6 +24,7 @@ from scrapypuppeteer.actions import (
 from scrapypuppeteer.browser_managers import BrowserManager
 from scrapypuppeteer.request import ActionRequest, CloseContextRequest, PuppeteerRequest
 from scrapypuppeteer.response import (
+    PuppeteerCaptchaSolverResponse,
     PuppeteerHarResponse,
     PuppeteerHtmlResponse,
     PuppeteerJsonResponse,
@@ -220,6 +222,8 @@ class ServiceBrowserManager(BrowserManager):
             request_action, (GoTo, GoForward, GoBack, Click, Scroll, FillForm)
         ):
             return PuppeteerHtmlResponse
+        if isinstance(request_action, CaptchaSolver):
+            return PuppeteerCaptchaSolverResponse
         if isinstance(request_action, Screenshot):
             return PuppeteerScreenshotResponse
         if isinstance(request_action, Har):

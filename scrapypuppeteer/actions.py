@@ -1,5 +1,9 @@
+import warnings
 from abc import ABC, abstractmethod
+from builtins import bool
 from typing import List, Tuple
+
+from scrapy.exceptions import ScrapyDeprecationWarning
 
 
 class PuppeteerServiceAction(ABC):
@@ -305,6 +309,13 @@ class RecaptchaSolver(PuppeteerServiceAction):
         wait_options: dict = None,
         **kwargs,
     ):
+        warnings.warn(
+            "RecaptchaSolver is deprecated and staged to remove in next versions."
+            "Use CaptchaSolver instead.",
+            ScrapyDeprecationWarning,
+            stacklevel=2,
+        )
+
         self.solve_recaptcha = solve_recaptcha
         self.close_on_empty = close_on_empty
         self.navigation_options = navigation_options
@@ -378,4 +389,42 @@ class Compose(PuppeteerServiceAction):
                 {"endpoint": action.endpoint, "body": action.payload()}
                 for action in self.actions
             ]
+        }
+
+
+class CaptchaSolver(PuppeteerServiceAction):
+    """
+    Action to merge all captcha solving actions into one action.
+    Available captcha types to solve: Recaptcha, Cloudflare.
+
+    :param solve_recaptcha: (default = False) enables automatic solving of recaptcha on the page.
+    :param solve_cloudflare: (default = False) enables automatic solving of cloudflare on the page.
+    :param close_on_empty: (default = False) whether to close page or not if there was no captcha on the page.
+    :param dict navigation_options: Navigation options, same as GoTo action.
+    :param dict wait_options: Options specifying wait after navigation, same as GoTo action.
+    """
+
+    endpoint = "captcha_solver"
+
+    def __init__(
+        self,
+        solve_recaptcha: bool = False,
+        solve_cloudflare: bool = False,
+        close_on_empty: bool = False,
+        navigation_options: dict = None,
+        wait_options: dict = None,
+    ):
+        self.solve_recaptcha = solve_recaptcha
+        self.solve_cloudflare = solve_cloudflare
+        self.close_on_empty = close_on_empty
+        self.navigation_options = navigation_options
+        self.wait_options = wait_options
+
+    def payload(self):
+        return {
+            "solveRecaptcha": self.solve_recaptcha,
+            "solveCloudflareCaptcha": self.solve_cloudflare,
+            "closeOnEmpty": self.close_on_empty,
+            "navigationOptions": self.navigation_options,
+            "waitOptions": self.wait_options,
         }
